@@ -4,9 +4,10 @@ import {PrivateKey} from "@pulumi/tls";
 import {ComponentResourceOptions, Lifted, OutputInstance, ProviderResource} from "@pulumi/pulumi";
 import {Command} from "@pulumi/command/remote";
 import {ClusterV2} from "@pulumi/rancher2";
+import {RancherClusterArgs} from "./ranchercluster";
 
 export interface VMArgs {sshKey: PrivateKey
-   rancherJoinCommand: string,
+    rancherCluster: ClusterV2,
 }
 
 
@@ -16,10 +17,8 @@ export class VM extends pulumi.ComponentResource {
     private proxmoxProvider: ProviderResource | undefined;
     readonly vm: proxmox.vm.VirtualMachine;
 
-    constructor(name: string, args: {
-        sshKey: PrivateKey;
-        rancherJoinCommand: OutputInstance<string> & Lifted<string>
-    }, opts: ComponentResourceOptions) {
+    constructor(name: string, args: VMArgs, opts: pulumi.ComponentResourceOptions) {
+
         super("pkg:index:VM", name, {}, opts);
 
         this.proxmoxProvider = opts.provider
@@ -31,7 +30,7 @@ export class VM extends pulumi.ComponentResource {
                 host: this.vm.ipv4Addresses.apply(ipv4Address=> ipv4Address[1][0]),
                 user: "ubuntu",
                 privateKey: args.sshKey.privateKeyPem
-            }, create: pulumi.interpolate`${args.rancherJoinCommand} --etcd --controlplane`,
+            }, create: pulumi.interpolate`${args.rancherCluster.clusterRegistrationToken.nodeCommand} --etcd --controlplane`,
         });
 
     }

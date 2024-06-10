@@ -9,6 +9,7 @@ import * as rancher2 from "@pulumi/rancher2";
 import { VirtualMachine } from "@muhlba91/pulumi-proxmoxve/vm";
 import {VM} from "./vm";
 import {Token} from "@pulumi/rancher2";
+import {Output} from "@pulumi/pulumi";
 // Generate an RSA private key
 const sshKey = new tls.PrivateKey("generic-ssh-key", {
     algorithm: "RSA",
@@ -42,14 +43,14 @@ const bucketNameString: pulumi.Output<string> = fkk.nodeCommand.apply(id => {
 });
 
 let webServers = [];
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 1; i++) {
     webServers.push(
-        new VM(`web-server-${i}`, {sshKey: sshKey, rancherJoinCommand: bucketNameString}, {})
+        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster}, {dependsOn:c})
     );
 
 }
 
-
-export let publicHostnames = webServers.map(s => s.vm.ipv4Addresses);
+//export let foo: pulumi.Output<string> =  bucketNameString
+//export let publicHostnames = webServers.map(s => s.vm.ipv4Addresses);
 
 
