@@ -45,11 +45,18 @@ const bucketNameString: pulumi.Output<string> = fkk.nodeCommand.apply(id => {
 let webServers = [];
 for (let i = 0; i < 1; i++) {
     webServers.push(
-        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster}, {parent:c})
+        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster,commandOptions: " --etcd --controlplane"}, {parent:c})
     );
 
 }
 
+let workerNodes = [];
+for (let i = 0; i < 1; i++) {
+    workerNodes.push(
+        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster,commandOptions: " --worker"}, {parent:c})
+    );
+
+}
 //export let foo: pulumi.Output<string> =  bucketNameString
 //export let publicHostnames = webServers.map(s => s.vm.ipv4Addresses);
 

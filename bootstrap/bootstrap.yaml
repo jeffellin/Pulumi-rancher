@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tanzu-continuousdelivery-resources
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vmware-system-tmc
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kapp-controller-packaging-global
+---

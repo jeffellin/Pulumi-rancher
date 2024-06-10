@@ -1,13 +1,13 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as proxmox from "@muhlba91/pulumi-proxmoxve"
 import {PrivateKey} from "@pulumi/tls";
-import {ComponentResourceOptions, Lifted, OutputInstance, ProviderResource} from "@pulumi/pulumi";
-import {Command} from "@pulumi/command/remote";
+import {ProviderResource} from "@pulumi/pulumi";
 import {ClusterV2} from "@pulumi/rancher2";
-import {RancherClusterArgs} from "./ranchercluster";
+import { remote } from "@pulumi/command"
 
 export interface VMArgs {sshKey: PrivateKey
     rancherCluster: ClusterV2,
+    commandOptions: string
 }
 
 
@@ -24,13 +24,12 @@ export class VM extends pulumi.ComponentResource {
         this.proxmoxProvider = opts.provider
         this.vm = this.createVM(name,args.sshKey);
 
-
         const remoteExec = new Command(name+"-remote-exec", {
             connection: {
                 host: this.vm.ipv4Addresses.apply(ipv4Address=> ipv4Address[1][0]),
                 user: "ubuntu",
                 privateKey: args.sshKey.privateKeyPem
-            }, create: pulumi.interpolate`${args.rancherCluster.clusterRegistrationToken.nodeCommand} --etcd --controlplane`,
+            }, create: pulumi.interpolate`${args.rancherCluster.clusterRegistrationToken.nodeCommand} + ${args.commandOptions}`,
         },{parent:this});
 
     }
