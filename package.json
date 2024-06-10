@@ -1,0 +1,17 @@
+{
+  "name": "rancher-cluster",
+  "description": "proxmox ubuntu server",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "dependencies": {
+    "@muhlba91/pulumi-proxmoxve": "6.8.1",
+    "@pulumi/aws": "^6.39.0",
+    "@pulumi/command": "0.11.1",
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/rancher2": "^6.1.1",
+    "@pulumi/tls": "5.0.3"
+  }
+}

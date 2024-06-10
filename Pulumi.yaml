@@ -1,0 +1,7 @@
+name: rancher-cluster
+runtime: nodejs
+description: proxmox ubuntu server
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: https://www.pulumi.com/ai/api/project/3793bfe1-d1f4-42d5-91f5-6c31f02d4e12.zip
