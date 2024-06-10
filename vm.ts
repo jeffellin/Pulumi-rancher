@@ -31,7 +31,7 @@ export class VM extends pulumi.ComponentResource {
                 user: "ubuntu",
                 privateKey: args.sshKey.privateKeyPem
             }, create: pulumi.interpolate`${args.rancherCluster.clusterRegistrationToken.nodeCommand} --etcd --controlplane`,
-        });
+        },{parent:this});
 
     }
 
@@ -73,7 +73,7 @@ export class VM extends pulumi.ComponentResource {
                 { vlanId: 4, bridge: "vmbr0" }
             ],
 
-        },{ provider: this.proxmoxProvider});
+        },{ parent:this,provider: this.proxmoxProvider});
     }
 }
 

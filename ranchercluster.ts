@@ -13,9 +13,9 @@ export class RancherCluster extends pulumi.ComponentResource {
         this.cluster = new rancher2.ClusterV2("clusterV2Resource", {
             name: name,
             kubernetesVersion: "v1.28.9+rke2r1"
-        },);
+        },{parent:this});
 
         this.joinCommand = this.cluster.clusterRegistrationToken.command;
-        this.registerOutputs({joinCommand: this.joinCommand})
+        this.registerOutputs({joinCommand: "non"})
     }
 }
