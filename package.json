@@ -7,9 +7,11 @@
   },
   "author": "",
   "dependencies": {
-    "@muhlba91/pulumi-proxmoxve": "6.8.1",
-    "@pulumi/pulumi": "^3.21.0",
+    "@pulumi/pulumi": "^3.0.0",
     "@pulumi/rancher2": "^6.1.1",
+    "@muhlba91/pulumi-proxmoxve": "6.8.1",
+    "@pulumi/command": "0.11.1",
     "@pulumi/tls": "5.0.3"
+
   }
 }
