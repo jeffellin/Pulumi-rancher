@@ -8,6 +8,9 @@ import * as rancher2 from "@pulumi/rancher2";
 
 import { VirtualMachine } from "@muhlba91/pulumi-proxmoxve/vm";
 import {VM} from "./vm";
+
+const cfg = new pulumi.Config();
+const stack = pulumi.getStack();
 import {Token} from "@pulumi/rancher2";
 import {Output} from "@pulumi/pulumi";
 // Generate an RSA private key
@@ -31,33 +34,35 @@ const proxmoxProvider = new proxmox.Provider("proxmox", {
     },
 });
 
-const c : RancherCluster = new RancherCluster("backup-bucket",{},{})
+let clusterName = cfg.get("clustername") || "none"
+const foo = rancher2.getClusterOutput({
+    name: clusterName
+});
 
-/*const fkk = rancher2.getClusterOutput({
-    name: "backup-bucket",
-}).clusterRegistrationToken;
+const nodeCommand = foo.clusterRegistrationToken.nodeCommand
+let nodeName = cfg.get("node") || "pve"
 
-const bucketNameString: pulumi.Output<string> = fkk.nodeCommand.apply(id => {
-    if (typeof id === 'string') return id;
-    throw new Error(`Expected a string but got: ${id}`);
-});*/
-
-let webServers = [];
-for (let i = 0; i < 1; i++) {
-    webServers.push(
-        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster,commandOptions: " --etcd --controlplane"}, {parent:c})
+const saveKubeConfig = new Command("save-kube", {
+    create: pulumi.interpolate`mkdir -p .kube-${pulumi.getStack()} && echo "${foo.kubeConfig}" > .kube-${pulumi.getStack()}/config `,
+    delete: `rm -rvf .kube-${pulumi.getStack()}/`,
+});
+let coontrolPlaneCount = cfg.getNumber("controlplanes") || 1;
+let controlPlane = [];
+for (let i = 0; i < coontrolPlaneCount; i++) {
+    controlPlane.push(
+        new VM(`${stack}-control-plane-${i}`, {node:nodeName,sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --etcd --controlplane"}, {})
     );
 
 }
-
+let workerNodesCount = cfg.getNumber("workers") || 1;
 let workerNodes = [];
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < workerNodesCount; i++) {
     workerNodes.push(
-        new VM(`web-server-${i}`, {sshKey: sshKey, rancherCluster:  c.cluster,commandOptions: " --worker"}, {parent:c})
+        new VM(`${stack}-worker-${i}`, {node:nodeName, sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --worker"}, {})
     );
 
 }
 //export let foo: pulumi.Output<string> =  bucketNameString
 //export let publicHostnames = webServers.map(s => s.vm.ipv4Addresses);
-
+export  let fra =nodeCommand
 

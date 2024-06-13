@@ -1,14 +1,16 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as proxmox from "@muhlba91/pulumi-proxmoxve"
 import {PrivateKey} from "@pulumi/tls";
-import {ProviderResource} from "@pulumi/pulumi";
+import {Input, ProviderResource} from "@pulumi/pulumi";
 import {ClusterV2} from "@pulumi/rancher2";
-import { remote } from "@pulumi/command"
+import {Command} from "@pulumi/command/remote";
 
 export interface VMArgs {sshKey: PrivateKey
-    rancherCluster: ClusterV2,
+    joinCommand: Input<string>,
+    node: Input<string>,
     commandOptions: string
 }
+
 
 
 
@@ -22,23 +24,23 @@ export class VM extends pulumi.ComponentResource {
         super("pkg:index:VM", name, {}, opts);
 
         this.proxmoxProvider = opts.provider
-        this.vm = this.createVM(name,args.sshKey);
+        this.vm = this.createVM(args.node.toString(),name,args.sshKey);
 
         const remoteExec = new Command(name+"-remote-exec", {
             connection: {
                 host: this.vm.ipv4Addresses.apply(ipv4Address=> ipv4Address[1][0]),
                 user: "ubuntu",
                 privateKey: args.sshKey.privateKeyPem
-            }, create: pulumi.interpolate`${args.rancherCluster.clusterRegistrationToken.nodeCommand} + ${args.commandOptions}`,
+            },create: pulumi.interpolate`${args.joinCommand} ${args.commandOptions}`,
         },{parent:this});
 
     }
 
 
-    private createVM(vmName: string,sshKey: PrivateKey): proxmox.vm.VirtualMachine {
+    private createVM(node: string,vmName: string,sshKey: PrivateKey): proxmox.vm.VirtualMachine {
         return new proxmox.vm.VirtualMachine(vmName, {
-            name: "name",
-            nodeName: "pve",
+            name: vmName,
+            nodeName: node,
             agent: {
                 enabled: true,
             },
@@ -68,11 +70,11 @@ export class VM extends pulumi.ComponentResource {
                 size: 80,
             }],
             networkDevices: [
-                { vlanId: 111, bridge: "vmbr0" },
+                {  bridge: "vmbr0" },
                 { vlanId: 4, bridge: "vmbr0" }
             ],
 
-        },{ parent:this,provider: this.proxmoxProvider});
+        },{ ignoreChanges: ["initialization.userAccount","disks","cdrom"],parent:this,provider: this.proxmoxProvider});
     }
 }
 
