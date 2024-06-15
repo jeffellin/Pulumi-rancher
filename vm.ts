@@ -8,7 +8,8 @@ import {Command} from "@pulumi/command/remote";
 export interface VMArgs {sshKey: PrivateKey
     joinCommand: Input<string>,
     node: Input<string>,
-    commandOptions: string
+    commandOptions: string,
+    datastoreId: string
 }
 
 
@@ -24,7 +25,7 @@ export class VM extends pulumi.ComponentResource {
         super("pkg:index:VM", name, {}, opts);
 
         this.proxmoxProvider = opts.provider
-        this.vm = this.createVM(args.node.toString(),name,args.sshKey);
+        this.vm = this.createVM(args.datastoreId, args.node.toString(),name,args.sshKey);
 
         const remoteExec = new Command(name+"-remote-exec", {
             connection: {
@@ -34,10 +35,18 @@ export class VM extends pulumi.ComponentResource {
             },create: pulumi.interpolate`${args.joinCommand} ${args.commandOptions}`,
         },{parent:this});
 
+        const remoteExec2 = new Command(name+"-install-remote-exec", {
+            connection: {
+                host: this.vm.ipv4Addresses.apply(ipv4Address=> ipv4Address[1][0]),
+                user: "ubuntu",
+                privateKey: args.sshKey.privateKeyPem
+            },create: "sudo apt update && sudo apt install nfs-common -y",
+        },{parent:this});
+
     }
 
 
-    private createVM(node: string,vmName: string,sshKey: PrivateKey): proxmox.vm.VirtualMachine {
+    private createVM(datastoreId: string, node: string,vmName: string,sshKey: PrivateKey): proxmox.vm.VirtualMachine {
         return new proxmox.vm.VirtualMachine(vmName, {
             name: vmName,
             nodeName: node,
@@ -59,15 +68,15 @@ export class VM extends pulumi.ComponentResource {
                 cores: 4,
             },
             memory: {
-                dedicated: 8096,
+                dedicated: 4096,
             },
             disks: [{
-                datastoreId: "local-lvm",
+                datastoreId: datastoreId ,
                 fileId: "synology:iso/jammy-server-cloudimg-amd64-custom.img",
                 interface: "virtio0",
                 iothread: true,
                 discard: "on",
-                size: 80,
+                size: 30,
             }],
             networkDevices: [
                 {  bridge: "vmbr0" },

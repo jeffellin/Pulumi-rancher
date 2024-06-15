@@ -1,7 +1,13 @@
 
 /bin/
 /node_modules/
-/.ssh-dev/*
+.ssh-dev/**
+.ssh-services/**
+.kube-services/**
+/.kube-*/**
 /ignore.txt
 /.idea/*
 /.vscode/*
+/.ssh-*/
+/.kube-*/
+

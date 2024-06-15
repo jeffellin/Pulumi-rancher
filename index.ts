@@ -47,10 +47,12 @@ const saveKubeConfig = new Command("save-kube", {
     delete: `rm -rvf .kube-${pulumi.getStack()}/`,
 });
 let coontrolPlaneCount = cfg.getNumber("controlplanes") || 1;
+let datastoreId = cfg.get("datastoreId") || "local-lvm";
+
 let controlPlane = [];
 for (let i = 0; i < coontrolPlaneCount; i++) {
     controlPlane.push(
-        new VM(`${stack}-control-plane-${i}`, {node:nodeName,sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --etcd --controlplane"}, {})
+        new VM(`${stack}-control-plane-${i}`, {datastoreId:datastoreId, node:nodeName,sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --etcd --controlplane"}, {})
     );
 
 }
@@ -58,7 +60,7 @@ let workerNodesCount = cfg.getNumber("workers") || 1;
 let workerNodes = [];
 for (let i = 0; i < workerNodesCount; i++) {
     workerNodes.push(
-        new VM(`${stack}-worker-${i}`, {node:nodeName, sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --worker"}, {})
+        new VM(`${stack}-worker-${i}`, {datastoreId:datastoreId, node:nodeName, sshKey: sshKey, joinCommand:  nodeCommand,commandOptions: " --worker"}, {})
     );
 
 }

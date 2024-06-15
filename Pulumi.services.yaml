@@ -1,6 +1,6 @@
 config:
-  rancher-cluster:node: pve
-  rancher-cluster:clustername: testing
-  rancher-cluster:workers: 1
+  rancher-cluster:node: pve2
+  rancher-cluster:clustername: services
+  rancher-cluster:workers: 3
   rancher-cluster.controlplanes: 1
   rancher-cluster:datastoreId: SSD_2TB

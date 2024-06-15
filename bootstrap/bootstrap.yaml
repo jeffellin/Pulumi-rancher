@@ -13,3 +13,72 @@ kind: Namespace
 metadata:
   name: kapp-controller-packaging-global
 ---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu-standard
+  namespace: kapp-controller-packaging-global
+spec:
+  fetch:
+    imgpkgBundle:
+      image: extensions.aws-usw2.tmc.cloud.vmware.com/packages/standard/repo:v2024.5.16
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stack-config
+  namespace: vmware-system-tmc
+data:
+  cluster_name: baseline
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tmc-secret
+  namespace: tanzu-continuousdelivery-resources
+spec:
+  interval: 5m0s
+  url: https://github.com/jeffellin/tmc-secret
+  ref:
+    branch: main
+  secretRef:
+    name: flux-system
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tmc-experiments
+  namespace: tanzu-continuousdelivery-resources
+spec:
+  interval: 5m0s
+  url: https://github.com/jeffellin/tmc-experiments
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tmc-secret
+  namespace: tanzu-continuousdelivery-resources
+spec:
+  interval: 10m
+  targetNamespace: ellin-system
+  sourceRef:
+    kind: GitRepository
+    name: tmc-secret
+  prune: true
+  timeout: 1m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tmc-gitops
+  namespace: tanzu-continuousdelivery-resources
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: tmc-experiments
+  path: "./roles/base"
+  prune: true
+  timeout: 1m
