@@ -1,5 +1,5 @@
-
-/bin/
+bootstrap/values/values.yaml
+/scripts/
 /node_modules/
 .ssh-dev/**
 .ssh-services/**

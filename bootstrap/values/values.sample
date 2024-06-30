@@ -1,0 +1,6 @@
+#@data/values-schema
+---
+github:
+  password: githubkey
+config:
+  cluster_name: sandbox
