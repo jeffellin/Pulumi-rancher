@@ -8,3 +8,4 @@ spec:
     imgpkgBundle:
       image: extensions.aws-usw2.tmc.cloud.vmware.com/packages/standard/repo:v2024.5.16
 ---
+# imgpkg tag list -i projects.registry.vmware.com/tkg/packages/standard/repo

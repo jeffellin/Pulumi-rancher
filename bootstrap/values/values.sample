@@ -4,3 +4,5 @@ github:
   password: githubkey
 config:
   cluster_name: sandbox
+proxmox:
+  token: csi user token

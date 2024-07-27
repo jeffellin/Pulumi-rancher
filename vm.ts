@@ -68,7 +68,7 @@ export class VM extends pulumi.ComponentResource {
                 cores: 4,
             },
             memory: {
-                dedicated: 4096,
+                dedicated: 8192,
             },
             disks: [{
                 datastoreId: datastoreId ,

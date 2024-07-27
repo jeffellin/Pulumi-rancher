@@ -8,3 +8,5 @@ metadata:
   namespace: continuousdelivery-resources
 data:
   cluster_name: #@ data.values.config.cluster_name
+  cluster_region: #@ data.values.config.region
+  cluster_zone: #@ data.values.config.zone
